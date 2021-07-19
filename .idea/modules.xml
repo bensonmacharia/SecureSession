@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/SecureSession.iml" filepath="$PROJECT_DIR$/.idea/modules/SecureSession.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/SecureSession.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/SecureSession.app.iml" />
+    </modules>
+  </component>
+</project>
