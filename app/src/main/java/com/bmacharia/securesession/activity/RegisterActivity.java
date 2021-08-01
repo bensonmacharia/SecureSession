@@ -222,7 +222,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                     params.put(Config.KEY_UNAME, username);
                     params.put(Config.KEY_EMAIL, email);
                     params.put(Config.KEY_PASS, password);
-                    params.put(Config.KEY_PASSC, password);
                     Log.i(TAG, "RegisterParams " + params);
                     return params;
                 }
