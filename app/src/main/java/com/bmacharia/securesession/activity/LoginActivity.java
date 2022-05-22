@@ -69,10 +69,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         layoutSignU = (LinearLayout) findViewById(R.id.sign_up_layout);
         layoutSignU.setOnClickListener(this);
-        editTextPassword = (EditText) findViewById(R.id.editTextPassword);
-        editTextPassword.setTypeface(EasyFonts.caviarDreams(this));
         editTextUserName = (EditText) findViewById(R.id.editTextUserName);
         editTextUserName.setTypeface(EasyFonts.caviarDreams(this));
+        editTextPassword = (EditText) findViewById(R.id.editTextPassword);
+        editTextPassword.setTypeface(EasyFonts.caviarDreams(this));
         txtForgotPass = (TextView) findViewById(R.id.txtForgotPass);
         txtForgotPass.setTypeface(EasyFonts.robotoBold(this));
 
@@ -138,18 +138,20 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                     if (message.equals("Login Successfully")){
                                         JSONObject responseJson = obj.getJSONObject("data");
                                         Log.i(TAG, "LoginJson" + responseJson);
-                                        String type = responseJson.getString("type");
-                                        String id = responseJson.getString("id");
-                                        Log.i(TAG, "LoginId " + id);
+                                        String res_type = responseJson.getString("type");
+                                        String res_id = responseJson.getString("id");
+                                        Log.i(TAG, "LoginId " + res_id);
                                         JSONObject loginAttributes = responseJson.getJSONObject("attributes");
                                         Log.i(TAG, "LoginAttributes" + loginAttributes);
-                                        String fullname = loginAttributes.getString("name");
-                                        String email = loginAttributes.getString("email");
-                                        String token = loginAttributes.getString("phone");
-                                        String uname = loginAttributes.getString("avatar_uri");
+                                        String res_uname = loginAttributes.getString("username");
+                                        String res_email = loginAttributes.getString("email");
+                                        String res_fname = loginAttributes.getString("firstname");
+                                        String res_lname = loginAttributes.getString("lastname");
+                                        String res_role = loginAttributes.getString("roles");
+                                        String ac_token = loginAttributes.getString("phone");
+                                        String rf_token = loginAttributes.getString("avatar_uri");
 
-                                        User user = new User(id, token, fullname, uname, email);
-
+                                        User user = new User(res_id, res_uname, res_email, res_fname, res_lname, res_role, ac_token, rf_token);
                                         SharedPrefManager.getInstance(getApplicationContext()).userLogin(user);
                                         Toast.makeText(getApplicationContext(), "Logged In. Welcome!", Toast.LENGTH_SHORT).show();
 
@@ -197,6 +199,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                     Log.i(TAG, "LoginParams " + params);
                     return params;
+                }
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    HashMap<String, String> headers = new HashMap<String, String>();
+                    headers.put("Content-Type", "application/json; charset=utf-8");
+                    return headers;
                 }
             };
 

@@ -26,6 +26,8 @@ import com.android.volley.Response;
 import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.bmacharia.securesession.R;
 import com.bmacharia.securesession.model.User;
@@ -45,7 +47,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
     private static final String TAG = RegisterActivity.class.getSimpleName();
 
-    private EditText editTextFullName, editTextUserName, editTextEmail, editTextPassword, editTextConfirmPassword;
+    private EditText editTextUserName, editTextFirstName, editTextLastName, editTextEmail, editTextPassword, editTextConfirmPassword;
     private Button buttonRegistration;
     private TextView txtBtnLogin;
 
@@ -68,10 +70,12 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
         setContentView(R.layout.activity_register);
 
-        editTextFullName = findViewById(R.id.editTextFullName);
-        editTextFullName.setTypeface(EasyFonts.caviarDreams(this));
         editTextUserName = findViewById(R.id.editTextUserName);
         editTextUserName.setTypeface(EasyFonts.caviarDreams(this));
+        editTextFirstName = findViewById(R.id.editTextFirstName);
+        editTextFirstName.setTypeface(EasyFonts.caviarDreams(this));
+        editTextLastName = findViewById(R.id.editTextLastName);
+        editTextLastName.setTypeface(EasyFonts.caviarDreams(this));
         editTextEmail = findViewById(R.id.editTextEmail);
         editTextEmail.setTypeface(EasyFonts.caviarDreams(this));
         editTextPassword = findViewById(R.id.editTextPassword);
@@ -88,8 +92,9 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void validateSignUpForm(){
-        final String full_name = editTextFullName.getText().toString();
         final String username = editTextUserName.getText().toString();
+        final String first_name = editTextFirstName.getText().toString();
+        final String last_name = editTextLastName.getText().toString();
         final String email = editTextEmail.getText().toString();
         final String password = editTextPassword.getText().toString();
         final String confrim_password = editTextConfirmPassword.getText().toString();
@@ -99,14 +104,19 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         pDialog.setCancelable(false);
 
         //validating inputs
-        if (TextUtils.isEmpty(full_name)) {
-            editTextFullName.setError("Please enter your Full Name");
-            editTextFullName.requestFocus();
-            return;
-        }
         if (TextUtils.isEmpty(username)) {
             editTextUserName.setError("Please enter your Username");
             editTextUserName.requestFocus();
+            return;
+        }
+        if (TextUtils.isEmpty(first_name)) {
+            editTextFirstName.setError("Please enter your First Name");
+            editTextFirstName.requestFocus();
+            return;
+        }
+        if (TextUtils.isEmpty(last_name)) {
+            editTextLastName.setError("Please enter your Last Name");
+            editTextLastName.requestFocus();
             return;
         }
         if (TextUtils.isEmpty(email) || !isValidEmail(email)) {
@@ -129,10 +139,63 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             editTextPassword.requestFocus();
             return;
         }
-        submitSignUpForm(full_name, username, email, password);
+        submitSignUpForm(username, first_name, last_name, email, password);
     }
 
-    private void submitSignUpForm(String name, String username, String email, String password){
+    private void submitSignUpForm(String username, String fname, String lname, String email, String password){
+        // creating connection detector class instance
+        cd = new ConnectionDetector(RegisterActivity.this);
+        // get Internet status
+        isInternetPresent = cd.isConnectingToInternet();
+        pDialog.setMessage("Registering ...");
+        showDialog();
+        Log.i(TAG, "RegisterUrl " + Config.URL_REGISTER);
+        if (isInternetPresent) {
+            // Post params to be sent to the server
+            HashMap<String, String> params = new HashMap<String, String>();
+            params.put(Config.KEY_UNAME, username);
+            params.put(Config.KEY_FNAME, fname);
+            params.put(Config.KEY_LNAME, lname);
+            params.put(Config.KEY_EMAIL, email);
+            params.put(Config.KEY_PASS, password);
+            Log.i(TAG, "RegisterParams " + params);
+
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_REGISTER, new JSONObject(params),
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            Log.d(TAG, "RegisterResponse: " + response);
+                            hideDialog();
+                            try {
+                                VolleyLog.v("Response:%n %s", response.toString(4));
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                Log.e(TAG, "RegisterError " + e.getMessage());
+                                Toast.makeText(getApplicationContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    hideDialog();
+                    VolleyLog.e("Error: ", error.getMessage());
+                }
+            });
+
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(10000,
+                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            // add the request object to the queue to be executed
+            Log.e(TAG, "RegisterRequest " + jsonObjectRequest);
+            VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjectRequest);
+
+        } else {
+            hideDialog();
+            Toast.makeText(RegisterActivity.this, "No internet connection! Try saving again.", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void submitSignUpForm1(String username, String fname, String lname, String email, String password){
         // creating connection detector class instance
         cd = new ConnectionDetector(RegisterActivity.this);
 
@@ -159,26 +222,11 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                                 if (obj.get("code").equals("200")){
                                     String message = obj.getString("message");
                                     Log.i(TAG, "RegisterMessage" + message);
-                                    if (message.equals("Successfully registered")){
-                                        JSONObject responseJson = obj.getJSONObject("data");
-                                        Log.i(TAG, "RegisterJson" + responseJson);
-                                        String type = responseJson.getString("type");
-                                        String id = responseJson.getString("id");
-                                        Log.i(TAG, "RegisterId " + id);
-                                        JSONObject registerAttributes = responseJson.getJSONObject("attributes");
-                                        Log.i(TAG, "RegisterAttributes" + registerAttributes);
-                                        String fullname = registerAttributes.getString("name");
-                                        String email = registerAttributes.getString("email");
-                                        String token = registerAttributes.getString("phone");
-                                        String uname = registerAttributes.getString("avatar_uri");
-
-                                        User user = new User(id, token, fullname, uname, email);
-                                        SharedPrefManager.getInstance(getApplicationContext()).userLogin(user);
-                                        Toast.makeText(getApplicationContext(), "Logged In. Welcome!", Toast.LENGTH_SHORT).show();
-
+                                    if (message.equals("User registered successfully!")){
+                                        Toast.makeText(getApplicationContext(), "Successfully registered. Login", Toast.LENGTH_SHORT).show();
                                         //starting the main activity
                                         finish();
-                                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                                        startActivity(new Intent(getApplicationContext(), LoginActivity.class));
                                     } else {
                                         Toast.makeText(getApplicationContext(), "Error Registering. Try again", Toast.LENGTH_LONG).show();
                                     }
@@ -216,14 +264,21 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                         }
                     }) {
                 @Override
-                protected Map<String, String> getParams() {
+                protected Map<String, String> getParams() throws AuthFailureError {
                     Map<String, String> params = new HashMap<>();
-                    params.put(Config.KEY_FNAME, name);
                     params.put(Config.KEY_UNAME, username);
+                    params.put(Config.KEY_FNAME, fname);
+                    params.put(Config.KEY_LNAME, lname);
                     params.put(Config.KEY_EMAIL, email);
                     params.put(Config.KEY_PASS, password);
                     Log.i(TAG, "RegisterParams " + params);
                     return params;
+                }
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    HashMap<String, String> headers = new HashMap<String, String>();
+                    headers.put("Content-Type", "application/json; charset=utf-8");
+                    return headers;
                 }
             };
 

@@ -94,9 +94,8 @@
                     android:id="@+id/txtForgotPass"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="15sp"
+                    android:textSize="14sp"
                     android:textColor="@color/colorPrimaryDark"
-                    android:textStyle="bold"
                     android:layout_marginTop="20dp"
                     android:text="Forgot your password?"
                     android:gravity="right"/>
@@ -115,8 +114,7 @@
                     android:text="Need an account? Register Here"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:textStyle="bold"
+                    android:textSize="15sp"
                     android:textColor="@color/colorAccent"/>
             </LinearLayout>
         </LinearLayout>
