@@ -26,6 +26,8 @@ import com.android.volley.Response;
 import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.bmacharia.securesession.R;
 import com.bmacharia.securesession.model.User;
@@ -112,107 +114,78 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private void signInSubmit(String username, String password){
         // creating connection detector class instance
         cd = new ConnectionDetector(LoginActivity.this);
-
         // get Internet status
         isInternetPresent = cd.isConnectingToInternet();
-
         pDialog.setMessage("Login in ...");
         showDialog();
-
+        Log.i(TAG, "LoginUrl " + Config.URL_LOGIN);
         if (isInternetPresent) {
-            StringRequest stringRequest = new StringRequest(Request.Method.POST, Config.URL_LOGIN,
-                    new Response.Listener<String>() {
+            // Post params to be sent to the server
+            HashMap<String, String> params = new HashMap<String, String>();
+            params.put(Config.KEY_UNAME, username);
+            params.put(Config.KEY_PASS, password);
+            Log.i(TAG, "LoginParams " + params);
+
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_LOGIN, new JSONObject(params),
+                    new Response.Listener<JSONObject>() {
                         @Override
-                        public void onResponse(String response) {
+                        public void onResponse(JSONObject response) {
                             Log.d(TAG, "LoginResponse: " + response);
                             hideDialog();
                             try {
                                 //converting response to json object
-                                JSONObject obj = new JSONObject(response);
+                                if (response.getString("type").equals("Bearer")) {
+                                    Toast.makeText(getApplicationContext(), "Successfully logged in. Welcome", Toast.LENGTH_SHORT).show();
+                                    String res_type = response.getString("type");
+                                    String res_id = response.getString("id");
+                                    String res_uname = response.getString("username");
+                                    String res_email = response.getString("email");
+                                    String res_role = response.getString("roles");
+                                    String ac_token = response.getString("accessToken");
+                                    String rf_token = response.getString("refreshToken");
 
-                                Log.i(TAG, "LoginObj" + obj);
+                                    User user = new User(res_id, res_uname, res_email, res_role, ac_token, rf_token);
+                                    SharedPrefManager.getInstance(getApplicationContext()).userLogin(user);
+                                    Toast.makeText(getApplicationContext(), "Logged In. Welcome!", Toast.LENGTH_SHORT).show();
 
-                                if (obj.get("code").equals("200")){
-                                    String message = obj.getString("message");
-                                    Log.i(TAG, "LoginMessage" + message);
-                                    if (message.equals("Login Successfully")){
-                                        JSONObject responseJson = obj.getJSONObject("data");
-                                        Log.i(TAG, "LoginJson" + responseJson);
-                                        String res_type = responseJson.getString("type");
-                                        String res_id = responseJson.getString("id");
-                                        Log.i(TAG, "LoginId " + res_id);
-                                        JSONObject loginAttributes = responseJson.getJSONObject("attributes");
-                                        Log.i(TAG, "LoginAttributes" + loginAttributes);
-                                        String res_uname = loginAttributes.getString("username");
-                                        String res_email = loginAttributes.getString("email");
-                                        String res_fname = loginAttributes.getString("firstname");
-                                        String res_lname = loginAttributes.getString("lastname");
-                                        String res_role = loginAttributes.getString("roles");
-                                        String ac_token = loginAttributes.getString("phone");
-                                        String rf_token = loginAttributes.getString("avatar_uri");
-
-                                        User user = new User(res_id, res_uname, res_email, res_fname, res_lname, res_role, ac_token, rf_token);
-                                        SharedPrefManager.getInstance(getApplicationContext()).userLogin(user);
-                                        Toast.makeText(getApplicationContext(), "Logged In. Welcome!", Toast.LENGTH_SHORT).show();
-
-                                        //starting the main activity
-                                        finish();
-                                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                                    } else {
-                                        Toast.makeText(getApplicationContext(), "Error in Login. Try again", Toast.LENGTH_LONG).show();
-                                    }
+                                    //starting the main activity
+                                    finish();
+                                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
                                 } else {
-                                    Toast.makeText(getApplicationContext(), "Error in Login. Try again", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(getApplicationContext(), "Error Login in. Try again", Toast.LENGTH_LONG).show();
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();
-                                Log.e(TAG, "LoginError" + e.getMessage());
+                                Log.e(TAG, "LoginError " + e.getMessage());
                                 Toast.makeText(getApplicationContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                             }
                         }
-                    },
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            //Toast.makeText(getApplicationContext(), "Error occurred: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-                            hideDialog();
-                            if (error instanceof TimeoutError || error instanceof NoConnectionError) {
-                                Toast.makeText(getApplicationContext(), "Communication Error!", Toast.LENGTH_SHORT).show();
-                            } else if (error instanceof AuthFailureError) {
-                                Toast.makeText(getApplicationContext(), "Authentication Error!", Toast.LENGTH_SHORT).show();
-                            } else if (error instanceof ServerError) {
-                                Toast.makeText(getApplicationContext(), "Server Side Error!", Toast.LENGTH_SHORT).show();
-                            } else if (error instanceof NetworkError) {
-                                Toast.makeText(getApplicationContext(), "Network Error!", Toast.LENGTH_SHORT).show();
-                            } else if (error instanceof ParseError) {
-                                Toast.makeText(getApplicationContext(), "Parse Error!", Toast.LENGTH_SHORT).show();
-                            } else {
-                                Toast.makeText(getApplicationContext(), "Error Login!", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    }) {
+                    }, new Response.ErrorListener() {
                 @Override
-                protected Map<String, String> getParams() throws AuthFailureError {
-                    Map<String, String> params = new HashMap<>();
-                    params.put(Config.KEY_UNAME, username);
-                    params.put(Config.KEY_PASS, password);
-
-                    Log.i(TAG, "LoginParams " + params);
-                    return params;
+                public void onErrorResponse(VolleyError error) {
+                    hideDialog();
+                    if (error instanceof TimeoutError || error instanceof NoConnectionError) {
+                        Toast.makeText(getApplicationContext(), "Communication Error!", Toast.LENGTH_SHORT).show();
+                    } else if (error instanceof AuthFailureError) {
+                        Toast.makeText(getApplicationContext(), "Authentication Error!", Toast.LENGTH_SHORT).show();
+                    } else if (error instanceof ServerError) {
+                        Toast.makeText(getApplicationContext(), "Server Side Error!", Toast.LENGTH_SHORT).show();
+                    } else if (error instanceof NetworkError) {
+                        Toast.makeText(getApplicationContext(), "Network Error!", Toast.LENGTH_SHORT).show();
+                    } else if (error instanceof ParseError) {
+                        Toast.makeText(getApplicationContext(), "Parse Error!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Error Login!", Toast.LENGTH_SHORT).show();
+                    }
                 }
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    HashMap<String, String> headers = new HashMap<String, String>();
-                    headers.put("Content-Type", "application/json; charset=utf-8");
-                    return headers;
-                }
-            };
+            });
 
-            stringRequest.setRetryPolicy(new DefaultRetryPolicy(5000,
+            jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(10000,
                     DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                     DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            // add the request object to the queue to be executed
+            VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjectRequest);
 
-            VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(stringRequest);
         } else {
             hideDialog();
             Toast.makeText(LoginActivity.this, "No internet connection! Try saving again.", Toast.LENGTH_LONG).show();

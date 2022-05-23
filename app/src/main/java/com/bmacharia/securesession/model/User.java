@@ -1,14 +1,12 @@
 package com.bmacharia.securesession.model;
 
 public class User {
-    private String userId, username, email, firstname, lastname, role, accessToken, refreshToken;
+    private String userId, username, email, role, accessToken, refreshToken;
 
-    public User(String userId, String username, String email, String firstname, String lastname, String role, String accessToken, String refreshToken) {
+    public User(String userId, String username, String email, String role, String accessToken, String refreshToken) {
         this.userId = userId;
         this.username = username;
         this.email = email;
-        this.firstname = firstname;
-        this.lastname = lastname;
         this.role = role;
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
@@ -36,22 +34,6 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getFirstname() {
-        return firstname;
-    }
-
-    public void setFirstname(String firstname) {
-        this.firstname = firstname;
-    }
-
-    public String getLastname() {
-        return lastname;
-    }
-
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
     }
 
     public String getRole() {

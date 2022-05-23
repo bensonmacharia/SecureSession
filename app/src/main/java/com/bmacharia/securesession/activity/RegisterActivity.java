@@ -167,7 +167,17 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                             Log.d(TAG, "RegisterResponse: " + response);
                             hideDialog();
                             try {
-                                VolleyLog.v("Response:%n %s", response.toString(4));
+                                //converting response to json object
+                                if (response.getString("message").equals("User registered successfully!")) {
+                                    String message = response.getString("message");
+                                    Log.i(TAG, "RegisterMessage" + message);
+                                    Toast.makeText(getApplicationContext(), "Successfully registered. Please login", Toast.LENGTH_SHORT).show();
+                                    //starting the login activity
+                                    finish();
+                                    startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                                } else {
+                                    Toast.makeText(getApplicationContext(), "Error Registering. Try again", Toast.LENGTH_LONG).show();
+                                }
                             } catch (JSONException e) {
                                 e.printStackTrace();
                                 Log.e(TAG, "RegisterError " + e.getMessage());
@@ -178,7 +188,19 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     hideDialog();
-                    VolleyLog.e("Error: ", error.getMessage());
+                    if (error instanceof TimeoutError || error instanceof NoConnectionError) {
+                        Toast.makeText(getApplicationContext(), "Communication Error!", Toast.LENGTH_SHORT).show();
+                    } else if (error instanceof AuthFailureError) {
+                        Toast.makeText(getApplicationContext(), "Authentication Error!", Toast.LENGTH_SHORT).show();
+                    } else if (error instanceof ServerError) {
+                        Toast.makeText(getApplicationContext(), "Server Side Error!", Toast.LENGTH_SHORT).show();
+                    } else if (error instanceof NetworkError) {
+                        Toast.makeText(getApplicationContext(), "Network Error!", Toast.LENGTH_SHORT).show();
+                    } else if (error instanceof ParseError) {
+                        Toast.makeText(getApplicationContext(), "Parse Error!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Error Login!", Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
 
@@ -186,107 +208,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                     DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                     DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             // add the request object to the queue to be executed
-            Log.e(TAG, "RegisterRequest " + jsonObjectRequest);
             VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(jsonObjectRequest);
 
-        } else {
-            hideDialog();
-            Toast.makeText(RegisterActivity.this, "No internet connection! Try saving again.", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    private void submitSignUpForm1(String username, String fname, String lname, String email, String password){
-        // creating connection detector class instance
-        cd = new ConnectionDetector(RegisterActivity.this);
-
-        // get Internet status
-        isInternetPresent = cd.isConnectingToInternet();
-
-        pDialog.setMessage("Registering ...");
-        showDialog();
-        //String registerUrl = URLs.URL_REGISTER+"?full_name="+full_name+"&car_reg="+car_reg+"&phone_no="+phone_no+"&password="+password;
-        Log.i(TAG, "RegisterUrl " + Config.URL_REGISTER);
-        if (isInternetPresent) {
-            StringRequest stringRequest = new StringRequest(Request.Method.POST, Config.URL_REGISTER,
-                    new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            Log.d(TAG, "RegisterResponse: " + response);
-                            hideDialog();
-                            try {
-                                //converting response to json object
-                                JSONObject obj = new JSONObject(response);
-
-                                Log.i(TAG, "RegisterObj" + obj);
-
-                                if (obj.get("code").equals("200")){
-                                    String message = obj.getString("message");
-                                    Log.i(TAG, "RegisterMessage" + message);
-                                    if (message.equals("User registered successfully!")){
-                                        Toast.makeText(getApplicationContext(), "Successfully registered. Login", Toast.LENGTH_SHORT).show();
-                                        //starting the main activity
-                                        finish();
-                                        startActivity(new Intent(getApplicationContext(), LoginActivity.class));
-                                    } else {
-                                        Toast.makeText(getApplicationContext(), "Error Registering. Try again", Toast.LENGTH_LONG).show();
-                                    }
-                                } else {
-                                    Toast.makeText(getApplicationContext(), "Error Registering. Try again", Toast.LENGTH_LONG).show();
-                                }
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                                Log.e(TAG, "RegisterError " + e.getMessage());
-                                Toast.makeText(getApplicationContext(), "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                            }
-                        }
-                    },
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            error.printStackTrace();
-                            //Log.e(TAG, "RegisterVolleyError " + error);
-                            //Toast.makeText(getApplicationContext(), "Error occurred: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-                            hideDialog();
-                            if (error instanceof TimeoutError || error instanceof NoConnectionError) {
-                                Toast.makeText(getApplicationContext(), "Communication Error!", Toast.LENGTH_SHORT).show();
-                            } else if (error instanceof AuthFailureError) {
-                                Toast.makeText(getApplicationContext(), "Authentication Error!", Toast.LENGTH_SHORT).show();
-                            } else if (error instanceof ServerError) {
-                                Toast.makeText(getApplicationContext(), "Server Side Error!", Toast.LENGTH_SHORT).show();
-                            } else if (error instanceof NetworkError) {
-                                Toast.makeText(getApplicationContext(), "Network Error!", Toast.LENGTH_SHORT).show();
-                            } else if (error instanceof ParseError) {
-                                Toast.makeText(getApplicationContext(), "Parse Error!", Toast.LENGTH_SHORT).show();
-                            } else {
-                                Toast.makeText(getApplicationContext(), "Error Registering!", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    }) {
-                @Override
-                protected Map<String, String> getParams() throws AuthFailureError {
-                    Map<String, String> params = new HashMap<>();
-                    params.put(Config.KEY_UNAME, username);
-                    params.put(Config.KEY_FNAME, fname);
-                    params.put(Config.KEY_LNAME, lname);
-                    params.put(Config.KEY_EMAIL, email);
-                    params.put(Config.KEY_PASS, password);
-                    Log.i(TAG, "RegisterParams " + params);
-                    return params;
-                }
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    HashMap<String, String> headers = new HashMap<String, String>();
-                    headers.put("Content-Type", "application/json; charset=utf-8");
-                    return headers;
-                }
-            };
-
-            stringRequest.setRetryPolicy(new DefaultRetryPolicy(10000,
-                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-
-            VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(stringRequest);
         } else {
             hideDialog();
             Toast.makeText(RegisterActivity.this, "No internet connection! Try saving again.", Toast.LENGTH_LONG).show();
