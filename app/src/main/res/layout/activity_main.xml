@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -18,7 +17,8 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/colorPrimary"
+            android:background="@color/colorPrimaryDark"
+            android:gravity="center_vertical|start"
             app:layout_scrollFlags="scroll|enterAlways"
             app:popupTheme="@style/MyMaterialTheme.PopupOverlay" />
 
@@ -27,106 +27,132 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:orientation="vertical"
-        android:padding="10dp">
+        android:padding="10dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <ImageView
             android:layout_width="200dp"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/profile_placeholder"
             android:layout_gravity="center"
             android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"/>
+            android:layout_marginBottom="20dp"
+            app:srcCompat="@drawable/profile_placeholder" />
 
         <TableLayout
             android:id="@+id/tableLayout1"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:stretchColumns="0,1">
+
             <TableRow
                 android:id="@+id/tableRow1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
+
                 <TextView
                     android:id="@+id/txtTitleUsername"
-                    android:text="Username: "
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_column="0"
                     android:layout_margin="5dp"
-                    android:textSize="16sp"
+                    android:text="Username: "
                     android:textColor="@color/colorPrimaryDark"
-                    android:textStyle="bold"
-                    android:layout_column="0">
-                </TextView>
+                    android:textSize="15sp"
+                    android:textStyle="bold"></TextView>
+
                 <TextView
                     android:id="@+id/txtUsername"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
                     android:layout_margin="5dp"
-                    android:textSize="14sp"
                     android:textColor="@android:color/black"
-                    android:layout_column="1">
-                </TextView>
+                    android:textSize="12sp"></TextView>
             </TableRow>
+
             <TableRow
                 android:id="@+id/tableRow2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
+
                 <TextView
                     android:id="@+id/txtTitleEmail"
-                    android:text="Email: "
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_column="0"
                     android:layout_margin="5dp"
-                    android:textSize="16sp"
+                    android:text="Email: "
                     android:textColor="@color/colorPrimaryDark"
-                    android:textStyle="bold"
-                    android:layout_column="0">
-                </TextView>
+                    android:textSize="15sp"
+                    android:textStyle="bold"></TextView>
+
                 <TextView
                     android:id="@+id/txtEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
                     android:layout_margin="5dp"
-                    android:textSize="14sp"
                     android:textColor="@android:color/black"
-                    android:layout_column="1">
-                </TextView>
+                    android:textSize="12sp"></TextView>
             </TableRow>
+
             <TableRow
                 android:id="@+id/tableRow3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
+
                 <TextView
                     android:id="@+id/txtTitleAccessToken"
-                    android:text="Access Token: "
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_column="0"
                     android:layout_margin="5dp"
-                    android:textSize="16sp"
+                    android:text="Access Token: "
                     android:textColor="@color/colorPrimaryDark"
-                    android:textStyle="bold"
-                    android:layout_column="0">
-                </TextView>
+                    android:textSize="15sp"
+                    android:textStyle="bold"></TextView>
+
                 <TextView
                     android:id="@+id/txtAccessToken"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
                     android:layout_margin="5dp"
-                    android:textSize="14sp"
+                    android:ellipsize="end"
+                    android:minLines="5"
+                    android:singleLine="false"
                     android:textColor="@android:color/black"
-                    android:layout_column="1">
-                </TextView>
+                    android:textSize="12sp"></TextView>
             </TableRow>
+
             <TableRow
                 android:id="@+id/tableRow4"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
+
                 <TextView
                     android:id="@+id/txtTitleRefreshToken"
-                    android:text="Refresh Token: "
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_column="0"
                     android:layout_margin="5dp"
-                    android:textSize="16sp"
+                    android:text="Refresh Token: "
                     android:textColor="@color/colorPrimaryDark"
-                    android:textStyle="bold"
-                    android:layout_column="0">
-                </TextView>
+                    android:textSize="15sp"
+                    android:textStyle="bold"></TextView>
+
                 <TextView
                     android:id="@+id/txtRefreshToken"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_column="1"
                     android:layout_margin="5dp"
-                    android:textSize="14sp"
+                    android:ellipsize="end"
+                    android:minLines="3"
+                    android:singleLine="false"
                     android:textColor="@android:color/black"
-                    android:layout_column="1">
-                </TextView>
+                    android:textSize="12sp"></TextView>
             </TableRow>
         </TableLayout>
 
@@ -134,14 +160,16 @@
             android:id="@+id/btnLogOut"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="5dp"
             android:background="@drawable/shapelogin"
             android:padding="10dp"
             android:shadowColor="@android:color/transparent"
             android:text="Log Out"
-            android:textSize="18dp"
+            android:textAllCaps="false"
             android:textColor="@color/white"
-            android:textAllCaps="false"/>
+            android:textSize="16dp" />
 
     </LinearLayout>
 

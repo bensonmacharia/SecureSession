@@ -14,7 +14,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
@@ -26,9 +25,7 @@ import com.android.volley.Response;
 import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
-import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.bmacharia.securesession.R;
 import com.bmacharia.securesession.model.User;
 import com.bmacharia.securesession.util.Config;
@@ -41,24 +38,20 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
-import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = LoginActivity.class.getSimpleName();
-
+    // flag for Internet connection status
+    Boolean isInternetPresent = false;
+    // Connection detector class
+    ConnectionDetector cd;
     private LinearLayout layoutSignU;
     private EditText editTextPassword, editTextUserName;
     private Button buttonLogin;
     private TextView txtForgotPass;
     private TextView txtBtnRegister;
     private ProgressDialog pDialog;
-
-    // flag for Internet connection status
-    Boolean isInternetPresent = false;
-
-    // Connection detector class
-    ConnectionDetector cd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,7 +104,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         signInSubmit(username, password);
     }
 
-    private void signInSubmit(String username, String password){
+    private void signInSubmit(String username, String password) {
         // creating connection detector class instance
         cd = new ConnectionDetector(LoginActivity.this);
         // get Internet status

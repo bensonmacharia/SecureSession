@@ -12,11 +12,11 @@ public class Config {
     private static final String base_url = "https://springauthservice.herokuapp.com/api/";
 
     // Server user login url
-    public static String URL_LOGIN = base_url+"user/signin";
+    public static String URL_LOGIN = base_url + "user/signin";
 
     // Server user register url
-    public static String URL_REGISTER = base_url+"user/signup";
+    public static String URL_REGISTER = base_url + "user/signup";
 
     // Get user profile url
-    public static String URL_PROFILE = base_url+"res/user/profile";
+    public static String URL_PROFILE = base_url + "res/user/profile";
 }

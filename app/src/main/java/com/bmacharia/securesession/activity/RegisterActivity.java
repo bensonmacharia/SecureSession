@@ -14,7 +14,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
@@ -26,14 +25,10 @@ import com.android.volley.Response;
 import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
-import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.bmacharia.securesession.R;
-import com.bmacharia.securesession.model.User;
 import com.bmacharia.securesession.util.Config;
 import com.bmacharia.securesession.util.ConnectionDetector;
-import com.bmacharia.securesession.util.SharedPrefManager;
 import com.bmacharia.securesession.util.VolleySingleton;
 import com.vstechlab.easyfonts.EasyFonts;
 
@@ -41,23 +36,22 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
-import java.util.Map;
 
 public class RegisterActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = RegisterActivity.class.getSimpleName();
-
+    // flag for Internet connection status
+    Boolean isInternetPresent = false;
+    // Connection detector class
+    ConnectionDetector cd;
     private EditText editTextUserName, editTextFirstName, editTextLastName, editTextEmail, editTextPassword, editTextConfirmPassword;
     private Button buttonRegistration;
     private TextView txtBtnLogin;
-
     private ProgressDialog pDialog;
 
-    // flag for Internet connection status
-    Boolean isInternetPresent = false;
-
-    // Connection detector class
-    ConnectionDetector cd;
+    private static boolean isValidEmail(CharSequence target) {
+        return (!TextUtils.isEmpty(target) && Patterns.EMAIL_ADDRESS.matcher(target).matches());
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +85,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
     }
 
-    private void validateSignUpForm(){
+    private void validateSignUpForm() {
         final String username = editTextUserName.getText().toString();
         final String first_name = editTextFirstName.getText().toString();
         final String last_name = editTextLastName.getText().toString();
@@ -142,7 +136,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         submitSignUpForm(username, first_name, last_name, email, password);
     }
 
-    private void submitSignUpForm(String username, String fname, String lname, String email, String password){
+    private void submitSignUpForm(String username, String fname, String lname, String email, String password) {
         // creating connection detector class instance
         cd = new ConnectionDetector(RegisterActivity.this);
         // get Internet status
@@ -214,10 +208,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             hideDialog();
             Toast.makeText(RegisterActivity.this, "No internet connection! Try saving again.", Toast.LENGTH_LONG).show();
         }
-    }
-
-    private static boolean isValidEmail(CharSequence target) {
-        return (!TextUtils.isEmpty(target) && Patterns.EMAIL_ADDRESS.matcher(target).matches());
     }
 
     private boolean validatePassword(String pass, String confirm_pass) {

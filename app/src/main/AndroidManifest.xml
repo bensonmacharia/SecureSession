@@ -17,6 +17,7 @@
         <activity
             android:name=".activity.MainActivity"
             android:configChanges="orientation|keyboardHidden"
+            android:exported="true"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity">
             <intent-filter>
@@ -28,6 +29,7 @@
         <activity
             android:name=".activity.RegisterActivity"
             android:configChanges="orientation|keyboardHidden"
+            android:exported="false"
             android:label="@string/title_activity_register"
             android:screenOrientation="portrait"
             android:theme="@style/MyMaterialTheme.NoActionBar"
@@ -35,6 +37,7 @@
         <activity
             android:name=".activity.LoginActivity"
             android:configChanges="orientation|keyboardHidden"
+            android:exported="false"
             android:label="@string/title_activity_login"
             android:theme="@style/MyMaterialTheme.NoActionBar"
             tools:ignore="LockedOrientationActivity" />

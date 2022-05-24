@@ -17,9 +17,10 @@ public class ConnectionDetector {
     public ConnectionDetector(Context context) {
         this.mContext = context;
     }
+
     /**
      * Checking for all possible internet providers
-     * **/
+     **/
     public boolean isConnectingToInternet() {
         ConnectivityManager connectivityManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -31,7 +32,7 @@ public class ConnectionDetector {
                     return true;
                 }
             }
-        }else {
+        } else {
             if (connectivityManager != null) {
                 //noinspection deprecation
                 NetworkInfo[] info = connectivityManager.getAllNetworkInfo();
@@ -48,7 +49,8 @@ public class ConnectionDetector {
         //Toast.makeText(mContext,mContext.getString(R.string.please_connect_to_internet), Toast.LENGTH_SHORT).show();
         return false;
     }
-    public boolean isBackgroundDataOn(){
+
+    public boolean isBackgroundDataOn() {
         ConnectivityManager mgr = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = mgr.getActiveNetworkInfo();
         boolean bgData = mgr.getBackgroundDataSetting();

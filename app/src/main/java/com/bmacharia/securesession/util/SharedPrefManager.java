@@ -4,8 +4,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
+import androidx.security.crypto.EncryptedSharedPreferences;
+import androidx.security.crypto.MasterKey;
+
 import com.bmacharia.securesession.activity.LoginActivity;
 import com.bmacharia.securesession.model.User;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 public class SharedPrefManager {
     //the constants
@@ -22,6 +28,7 @@ public class SharedPrefManager {
     private static SharedPrefManager mInstance;
     private static Context mCtx;
 
+
     private SharedPrefManager(Context context) {
         mCtx = context;
     }
@@ -33,11 +40,40 @@ public class SharedPrefManager {
         return mInstance;
     }
 
+    // Encryption method
+    public SharedPreferences getEncryptedSharedPreferences() {
+        MasterKey masterKey = null;
+        try {
+            masterKey = new MasterKey.Builder(mCtx, MasterKey.DEFAULT_MASTER_KEY_ALIAS)
+                    .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                    .build();
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        SharedPreferences sharedPreferences = null;
+        try {
+            sharedPreferences = EncryptedSharedPreferences.create(
+                    mCtx,
+                    USER_SHARED_PREF_NAME,
+                    masterKey,
+                    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM);
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return sharedPreferences;
+    }
+
+
     //method to let the user login
     //this method will store the user data in shared preferences
     public void userLogin(User user) {
-        SharedPreferences sharedPreferences = mCtx.getSharedPreferences(USER_SHARED_PREF_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
+        //SharedPreferences sharedPreferences = mCtx.getSharedPreferences(USER_SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = getEncryptedSharedPreferences().edit();
         editor.putString(KEY_ID, user.getUserId());
         editor.putString(KEY_USERNAME, user.getUsername());
         editor.putString(KEY_EMAIL, user.getEmail());
@@ -49,27 +85,27 @@ public class SharedPrefManager {
 
     //this method will checker whether user is already logged in or not
     public boolean isLoggedIn() {
-        SharedPreferences sharedPreferences = mCtx.getSharedPreferences(USER_SHARED_PREF_NAME, Context.MODE_PRIVATE);
-        return sharedPreferences.getString(KEY_USERNAME, null) != null;
+        //SharedPreferences sharedPreferences = mCtx.getSharedPreferences(USER_SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        return getEncryptedSharedPreferences().getString(KEY_USERNAME, null) != null;
     }
 
     //this method will give the logged in user
     public User getUser() {
-        SharedPreferences sharedPreferences = mCtx.getSharedPreferences(USER_SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        //SharedPreferences sharedPreferences = mCtx.getSharedPreferences(USER_SHARED_PREF_NAME, Context.MODE_PRIVATE);
         return new User(
-                sharedPreferences.getString(KEY_ID, null),
-                sharedPreferences.getString(KEY_USERNAME, null),
-                sharedPreferences.getString(KEY_EMAIL, null),
-                sharedPreferences.getString(KEY_ROLE, null),
-                sharedPreferences.getString(KEY_ATOKEN, null),
-                sharedPreferences.getString(KEY_RTOKEN, null)
+                getEncryptedSharedPreferences().getString(KEY_ID, null),
+                getEncryptedSharedPreferences().getString(KEY_USERNAME, null),
+                getEncryptedSharedPreferences().getString(KEY_EMAIL, null),
+                getEncryptedSharedPreferences().getString(KEY_ROLE, null),
+                getEncryptedSharedPreferences().getString(KEY_ATOKEN, null),
+                getEncryptedSharedPreferences().getString(KEY_RTOKEN, null)
         );
     }
 
     //this method will logout the user
     public void logout() {
-        SharedPreferences sharedPreferences = mCtx.getSharedPreferences(USER_SHARED_PREF_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
+        //SharedPreferences sharedPreferences = mCtx.getSharedPreferences(USER_SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = getEncryptedSharedPreferences().edit();
         editor.clear();
         editor.apply();
         mCtx.startActivity(new Intent(mCtx, LoginActivity.class));
